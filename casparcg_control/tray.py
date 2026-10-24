@@ -4,16 +4,17 @@ _HERE = os.path.dirname(os.path.abspath(__file__))
 
 ####################
 ITEMS = {
-    1: { "label": "Start Server" },
-    2: { "label": "Stop Server"  },
-    3: { "label": "Show logs"    },
-    4: { "label": "Quit"         },
+    1: { "label": "Start Server", "callback": "start_server" },
+    2: { "label": "Stop Server",  "callback": "stop_server" },
+    3: { "label": "Show logs",    "callback": "show_logs" },
+    4: { "label": "Quit",         "callback": "quit" },
 }
 MENU_PATH = "/MenuBar"
 
 class Menu(dbus.service.Object):
-    def __init__(self, conn, object_path):
+    def __init__(self, conn, object_path, callbacks):
         super().__init__(conn, object_path)
+        self._callbacks = callbacks
 
         self.props = {
             "Version": dbus.UInt32(3),
@@ -47,7 +48,9 @@ class Menu(dbus.service.Object):
 
     @dbus.service.method("com.canonical.dbusmenu", in_signature="isvu")
     def Event(self, item_id, event, data, timestamp):
-        if event == "clicked": print("clicked:", ITEMS[item_id]["label"])
+        if event == "clicked":
+            callback = self._callbacks.get(ITEMS[item_id]["callback"])
+            if callback: callback()
 
 ####################
 DEFAULT_ICON = os.path.join(_HERE, "default.png")
@@ -55,9 +58,9 @@ RUNNING_ICON = os.path.join(_HERE, "running.png")
 STOPPED_ICON = os.path.join(_HERE, "stopped.png")
 
 class Tray(dbus.service.Object):
-    def __init__(self, conn, object_path):
+    def __init__(self, conn, object_path, **callbacks):
         super().__init__(conn, object_path)
-        self._menu = Menu(conn, MENU_PATH)
+        self._menu = Menu(conn, MENU_PATH, callbacks)
 
         self.props = {
             "Category": "ApplicationStatus",
