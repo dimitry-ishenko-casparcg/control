@@ -15,6 +15,7 @@ class Menu(dbus.service.Object):
     def __init__(self, conn, object_path, callbacks):
         super().__init__(conn, object_path)
         self._callbacks = callbacks
+        self._revision = 1
 
         self.props = {
             "Version": dbus.UInt32(3),
@@ -38,7 +39,7 @@ class Menu(dbus.service.Object):
             )
             for id, props in ITEMS.items()
         ], signature="v")
-        return 1, (0, {"children-display": "submenu"}, children)
+        return self._revision, (0, { "children-display": "submenu" }, children)
 
     @dbus.service.method("com.canonical.dbusmenu", in_signature="aias", out_signature="a(ia{sv})")
     def GetGroupProperties(self, ids, names): return list(ITEMS.items())
@@ -51,6 +52,16 @@ class Menu(dbus.service.Object):
         if event == "clicked":
             callback = self._callbacks.get(ITEMS[item_id]["callback"])
             if callback: callback()
+
+    def set_enabled(self, callback_name, enabled):
+        id = next(id for id, item in ITEMS.items() if item["callback"] == callback_name)
+        ITEMS[id]["enabled"] = enabled
+
+        self._revision += 1
+        self.LayoutUpdated(self._revision, 0)
+
+    @dbus.service.signal("com.canonical.dbusmenu", signature="ui")
+    def LayoutUpdated(self, revision, parent): pass
 
 ####################
 DEFAULT_ICON = os.path.join(_HERE, "default.png")
@@ -76,6 +87,13 @@ class Tray(dbus.service.Object):
 
     @dbus.service.method("org.freedesktop.DBus.Properties", in_signature="ss", out_signature="v")
     def Get(self, interface, name): return self.props[name]
+
+    def set_running(self, running):
+        self.props["IconName"] = RUNNING_ICON if running else STOPPED_ICON
+        self.NewIcon()
+
+        self._menu.set_enabled("start_server", not running)
+        self._menu.set_enabled("stop_server", running)
 
     @dbus.service.signal("org.kde.StatusNotifierItem", signature="")
     def NewIcon(self): pass
