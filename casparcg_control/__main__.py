@@ -3,8 +3,6 @@ from dbus.mainloop.glib import DBusGMainLoop
 from gi.repository import GLib
 from .tray import Tray
 
-def start_server(): print("start server")
-def stop_server(): print("stop server")
 def show_logs(): print("show logs")
 
 def main():
@@ -15,7 +13,15 @@ def main():
     name = f"org.kde.StatusNotifierItem-{os.getpid()}-1"
     bus_name = dbus.service.BusName(name, bus)
 
-    Tray(bus, "/StatusNotifierItem", start_server=start_server, stop_server=stop_server,
+    def start_server():
+        print("start server")
+        tray.set_running(True)
+
+    def stop_server():
+        print("stop server")
+        tray.set_running(False)
+
+    tray = Tray(bus, "/StatusNotifierItem", start_server=start_server, stop_server=stop_server,
         show_logs=show_logs, quit=loop.quit
     )
 
