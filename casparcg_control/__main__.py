@@ -1,7 +1,7 @@
 import dbus, dbus.service, os
 from dbus.mainloop.glib import DBusGMainLoop
 from gi.repository import GLib
-from .tray import Tray
+from . import Tray
 
 def show_logs(): print("show logs")
 
