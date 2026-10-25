@@ -18,7 +18,7 @@ class Menu(dbus.service.Object):
         self._revision = 1
 
         self.props = {
-            "Version": dbus.UInt32(3),
+            "Version": dbus.UInt32(2),
             "TextDirection": "ltr",
             "Status": "normal"
         }
