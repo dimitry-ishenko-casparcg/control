@@ -1,5 +1,23 @@
-control (0.1) UNRELEASED; urgency=medium
+control (0.1) unstable; urgency=medium
 
-  * Initial release.
+  * debian: fix source package name
+  * Add Debian release workflow
+  * Upscale assets to 256x256
+  * Add Debian packaging
+  * README: basic skeleton
+  * Add LICENSE.md
+  * Add desktop file
+  * Add assets
+  * Update icons
+  * main: start/stop casparcg-server
+  * Add the Proc class
+  * init: absorb Menu and Tray classes
+  * tray: use version 2
+  * main: control the menu
+  * tray: add set_enabled()
+  * tray: add callback stubs
+  * tray: add context menu bits
+  * Import project skeleton
+  * Initial commit
 
- -- Dimitry Ishenko <dimitry.ishenko@gmail.com>  Sun, 25 Oct 2026 18:14:53 -0400
+ -- Dimitry Ishenko <dimitry.ishenko@gmail.com>  Sun, 25 Oct 2026 18:43:13 -0400
