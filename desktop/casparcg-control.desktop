@@ -1,0 +1,6 @@
+[Desktop Entry]
+Name=CasparCG Control
+Type=Application
+Icon=casparcg-control
+Exec=casparcg-control
+Categories=AudioVideo;Audio;Video;Graphics
