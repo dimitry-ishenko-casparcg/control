@@ -1,4 +1,5 @@
-import dbus.service, os
+import dbus.service, os, subprocess
+from gi.repository import GLib
 
 __version__ = "0.1"
 
@@ -98,3 +99,37 @@ class Tray(dbus.service.Object):
 
     @dbus.service.signal("org.kde.StatusNotifierItem", signature="")
     def NewIcon(self): pass
+
+####################
+class Proc:
+    def __init__(self, cmd, on_running=None):
+        self.cmd = cmd
+        self.on_running = on_running
+
+        self._proc  = None
+        self._state = None
+        self._run   = False
+        self._stop  = 0
+
+        GLib.timeout_add(500, self._poll)
+
+    def start(self): self._run = True
+    def stop(self): self._run = False
+
+    def running(self):
+        return self._proc is not None and self._proc.poll() is None
+
+    def _poll(self):
+        running = self.running()
+        if running != self._state:
+            self._state = running
+            if self.on_running: self.on_running(running)
+
+        if self._run and not running:
+            self._proc = subprocess.Popen(self.cmd)
+        elif not self._run and running:
+            self._stop += 1
+            self._proc.kill() if self._stop > 5 else self._proc.terminate()
+        else: self._stop = 0
+
+        return True
