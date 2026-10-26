@@ -19,6 +19,10 @@ ITEMS = {
 }
 MENU_PATH = "/MenuBar"
 
+IFACE_DBUS_PROPERTIES = "org.freedesktop.DBus.Properties"
+IFACE_DBUS_MENU = "com.canonical.dbusmenu"
+IFACE_STATUS_NOTIFIER = "org.kde.StatusNotifierItem"
+
 def launch(cmd): subprocess.Popen(cmd)
 
 ####################
@@ -34,13 +38,13 @@ class Menu(dbus.service.Object):
             "Status": "normal"
         }
 
-    @dbus.service.method("org.freedesktop.DBus.Properties", in_signature="s", out_signature="a{sv}")
+    @dbus.service.method(IFACE_DBUS_PROPERTIES, in_signature="s", out_signature="a{sv}")
     def GetAll(self, interface): return self.props
 
-    @dbus.service.method("org.freedesktop.DBus.Properties", in_signature="ss", out_signature="v")
+    @dbus.service.method(IFACE_DBUS_PROPERTIES, in_signature="ss", out_signature="v")
     def Get(self, interface, name): return self.props[name]
 
-    @dbus.service.method("com.canonical.dbusmenu", in_signature="iias", out_signature="u(ia{sv}av)")
+    @dbus.service.method(IFACE_DBUS_MENU, in_signature="iias", out_signature="u(ia{sv}av)")
     def GetLayout(self, parent, depth, names):
         children = dbus.Array([
             dbus.Struct(
@@ -52,13 +56,13 @@ class Menu(dbus.service.Object):
         ], signature="v")
         return self._revision, (0, { "children-display": "submenu" }, children)
 
-    @dbus.service.method("com.canonical.dbusmenu", in_signature="aias", out_signature="a(ia{sv})")
+    @dbus.service.method(IFACE_DBUS_MENU, in_signature="aias", out_signature="a(ia{sv})")
     def GetGroupProperties(self, ids, names): return list(ITEMS.items())
 
-    @dbus.service.method("com.canonical.dbusmenu", in_signature="i", out_signature="b")
+    @dbus.service.method(IFACE_DBUS_MENU, in_signature="i", out_signature="b")
     def AboutToShow(self, item_id): return False
 
-    @dbus.service.method("com.canonical.dbusmenu", in_signature="isvu")
+    @dbus.service.method(IFACE_DBUS_MENU, in_signature="isvu")
     def Event(self, item_id, event, data, timestamp):
         if event == "clicked":
             callback = self._callbacks.get(ITEMS[item_id]["callback"])
@@ -71,7 +75,7 @@ class Menu(dbus.service.Object):
         self._revision += 1
         self.LayoutUpdated(self._revision, 0)
 
-    @dbus.service.signal("com.canonical.dbusmenu", signature="ui")
+    @dbus.service.signal(IFACE_DBUS_MENU, signature="ui")
     def LayoutUpdated(self, revision, parent): pass
 
 ####################
@@ -89,10 +93,10 @@ class Tray(dbus.service.Object):
             "Menu": dbus.ObjectPath(MENU_PATH),
         }
 
-    @dbus.service.method("org.freedesktop.DBus.Properties", in_signature="s", out_signature="a{sv}")
+    @dbus.service.method(IFACE_DBUS_PROPERTIES, in_signature="s", out_signature="a{sv}")
     def GetAll(self, interface): return self.props
 
-    @dbus.service.method("org.freedesktop.DBus.Properties", in_signature="ss", out_signature="v")
+    @dbus.service.method(IFACE_DBUS_PROPERTIES, in_signature="ss", out_signature="v")
     def Get(self, interface, name): return self.props[name]
 
     def set_running(self, running):
@@ -102,7 +106,7 @@ class Tray(dbus.service.Object):
         self._menu.set_enabled("start_server", not running)
         self._menu.set_enabled("stop_server", running)
 
-    @dbus.service.signal("org.kde.StatusNotifierItem", signature="")
+    @dbus.service.signal(IFACE_STATUS_NOTIFIER, signature="")
     def NewIcon(self): pass
 
 ####################
