@@ -4,15 +4,18 @@ from pathlib import Path
 
 __version__ = "0.1"
 
+_HERE = Path(__file__).resolve().parent
+def _png(name):
+    with open(_HERE / name, "rb") as fp: return dbus.ByteArray(fp.read())
+
 ITEMS = {
-    1: { "label": "Start Server", "callback": "start_server" },
-    2: { "label": "Stop Server",  "callback": "stop_server" },
-    3: { "label": "Show logs",    "callback": "show_logs" },
-    4: { "label": "Quit",         "callback": "quit" },
+    1: { "label": "Start Server", "icon-data": _png("start.png"), "callback": "start_server" },
+    2: { "label": "Stop Server",  "icon-data": _png( "stop.png"), "callback": "stop_server" },
+    3: { "label": "Show Logs",    "icon-data": _png( "logs.png"), "callback": "show_logs" },
+    4: { "label": "Quit",         "icon-data": _png( "quit.png"), "callback": "quit" },
 }
 MENU_PATH = "/MenuBar"
 
-_HERE = Path(__file__).resolve().parent
 DEFAULT_ICON = _HERE / "default.png"
 RUNNING_ICON = _HERE / "running.png"
 STOPPED_ICON = _HERE / "stopped.png"
