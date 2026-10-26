@@ -5,20 +5,19 @@ from pathlib import Path
 __version__ = "0.3"
 
 _HERE = Path(__file__).resolve().parent
-def _png(name):
-    with open(_HERE / name, "rb") as fp: return dbus.ByteArray(fp.read())
-
-ITEMS = {
-    1: { "label": "Start Server", "icon-data": _png("start.png"), "callback": "start_server" },
-    2: { "label": "Stop Server",  "icon-data": _png( "stop.png"), "callback": "stop_server" },
-    3: { "label": "Show Logs",    "icon-data": _png( "logs.png"), "callback": "show_logs" },
-    4: { "label": "Quit",         "icon-data": _png( "quit.png"), "callback": "quit" },
-}
-MENU_PATH = "/MenuBar"
-
 DEFAULT_ICON = _HERE / "default.png"
 RUNNING_ICON = _HERE / "running.png"
 STOPPED_ICON = _HERE / "stopped.png"
+
+def read(name): return dbus.ByteArray((_HERE / name).read_bytes())
+
+ITEMS = {
+    1: { "label": "Start Server", "icon-data": read("start.png"), "callback": "start_server" },
+    2: { "label": "Stop Server",  "icon-data": read( "stop.png"), "callback": "stop_server" },
+    3: { "label": "Show Logs",    "icon-data": read( "logs.png"), "callback": "show_logs" },
+    4: { "label": "Quit",         "icon-data": read( "quit.png"), "callback": "quit" },
+}
+MENU_PATH = "/MenuBar"
 
 def launch(cmd): subprocess.Popen(cmd)
 
