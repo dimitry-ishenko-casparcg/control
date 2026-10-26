@@ -10,6 +10,7 @@ ITEMS = {
     3: { "label": "Show Logs",    "icon-name":  "logs", "callback": "show_logs" },
     4: { "label": "Quit",         "icon-name":  "quit", "callback": "quit" },
 }
+OBJECT_PATH = "/StatusNotifierItem"
 MENU_PATH = "/MenuBar"
 
 IFACE_DBUS_PROPERTIES = "org.freedesktop.DBus.Properties"
@@ -74,10 +75,10 @@ class Menu(dbus.service.Object):
 
 ####################
 class Tray(dbus.service.Object):
-    def __init__(self, conn, object_path, **callbacks):
-        super().__init__(conn, object_path)
-        self._menu = Menu(conn, MENU_PATH, callbacks)
+    def __init__(self, conn, **callbacks):
+        super().__init__(conn, OBJECT_PATH)
 
+        self._menu = Menu(conn, MENU_PATH, callbacks)
         self.props = {
             "Category": "ApplicationStatus",
             "Id": "casparcg-control",

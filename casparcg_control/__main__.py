@@ -21,7 +21,7 @@ def main():
     bus_name = dbus.service.BusName(name, bus)
 
     server = Proc(["casparcg-server"])
-    tray = Tray(bus, "/StatusNotifierItem", start_server=server.start, stop_server=server.stop,
+    tray = Tray(bus, start_server=server.start, stop_server=server.stop,
         show_logs=show_logs, quit=loop.quit)
     server.on_running = tray.set_running
 
