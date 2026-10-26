@@ -1,9 +1,14 @@
 import dbus, dbus.service, os, signal
 from dbus.mainloop.glib import DBusGMainLoop
 from gi.repository import GLib
-from . import Proc, Tray
+from pathlib import Path
+from . import launch, Proc, Tray
 
-def show_logs(): print("show logs")
+def xdg(name, def_value): return Path(os.environ.get(name) or (Path.home() / def_value))
+casparcg_log = xdg("XDG_STATE_HOME", ".local/state") / "casparcg-server/casparcg.log"
+
+def show_logs():
+    launch(["x-terminal-emulator", "-e", "tail", "-n", "+1", "-f", casparcg_log])
 
 def main():
     DBusGMainLoop(set_as_default=True)
