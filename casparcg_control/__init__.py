@@ -110,6 +110,18 @@ class Tray(dbus.service.Object):
     def NewIcon(self): pass
 
 ####################
+class Notifier:
+    def __init__(self):
+        DBusGMainLoop(set_as_default=True)
+        self.bus = dbus.SessionBus()
+
+        name = f"{SNI_SERVICE_PREFIX}-{os.getpid()}-1"
+        self.bus_name = dbus.service.BusName(name, self.bus)
+
+        watcher = self.bus.get_object(SNI_WATCHER_SERVICE, SNI_WATCHER_PATH)
+        watcher.RegisterStatusNotifierItem(name, dbus_interface=SNI_WATCHER_SERVICE)
+
+####################
 class Proc:
     def __init__(self, cmd, on_running=None):
         self.cmd = cmd
@@ -142,15 +154,3 @@ class Proc:
         else: self._stop = 0
 
         return True
-
-####################
-class Notifier:
-    def __init__(self):
-        DBusGMainLoop(set_as_default=True)
-        self.bus = dbus.SessionBus()
-
-        name = f"{SNI_SERVICE_PREFIX}-{os.getpid()}-1"
-        self.bus_name = dbus.service.BusName(name, self.bus)
-
-        watcher = self.bus.get_object(SNI_WATCHER_SERVICE, SNI_WATCHER_PATH)
-        watcher.RegisterStatusNotifierItem(name, dbus_interface=SNI_WATCHER_SERVICE)
