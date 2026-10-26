@@ -1,5 +1,6 @@
-import dbus.service, os, subprocess
+import dbus.service, subprocess
 from gi.repository import GLib
+from pathlib import Path
 
 __version__ = "0.1"
 
@@ -11,10 +12,10 @@ ITEMS = {
 }
 MENU_PATH = "/MenuBar"
 
-_HERE = os.path.dirname(os.path.abspath(__file__))
-DEFAULT_ICON = os.path.join(_HERE, "default.png")
-RUNNING_ICON = os.path.join(_HERE, "running.png")
-STOPPED_ICON = os.path.join(_HERE, "stopped.png")
+_HERE = Path(__file__).resolve().parent
+DEFAULT_ICON = _HERE / "default.png"
+RUNNING_ICON = _HERE / "running.png"
+STOPPED_ICON = _HERE / "stopped.png"
 
 def launch(cmd): subprocess.Popen(cmd)
 
@@ -82,7 +83,7 @@ class Tray(dbus.service.Object):
             "Id": "casparcg-control",
             "Title": "CasparCG Control",
             "Status": "Active",
-            "IconName": DEFAULT_ICON,
+            "IconName": str(DEFAULT_ICON),
             "Menu": dbus.ObjectPath(MENU_PATH),
         }
 
@@ -93,7 +94,7 @@ class Tray(dbus.service.Object):
     def Get(self, interface, name): return self.props[name]
 
     def set_running(self, running):
-        self.props["IconName"] = RUNNING_ICON if running else STOPPED_ICON
+        self.props["IconName"] = str(RUNNING_ICON if running else STOPPED_ICON)
         self.NewIcon()
 
         self._menu.set_enabled("start_server", not running)
