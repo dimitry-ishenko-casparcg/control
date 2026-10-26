@@ -1,21 +1,14 @@
-import dbus.service, subprocess
+import dbus.service, os, subprocess
 from gi.repository import GLib
-from pathlib import Path
 
 __version__ = "0.3"
 
-_HERE = Path(__file__).resolve().parent
-DEFAULT_ICON = _HERE / "default.png"
-RUNNING_ICON = _HERE / "running.png"
-STOPPED_ICON = _HERE / "stopped.png"
-
-def read(name): return dbus.ByteArray((_HERE / name).read_bytes())
-
+ICON_DIR = os.path.dirname(os.path.abspath(__file__))
 ITEMS = {
-    1: { "label": "Start Server", "icon-data": read("start.png"), "callback": "start_server" },
-    2: { "label": "Stop Server",  "icon-data": read( "stop.png"), "callback": "stop_server" },
-    3: { "label": "Show Logs",    "icon-data": read( "logs.png"), "callback": "show_logs" },
-    4: { "label": "Quit",         "icon-data": read( "quit.png"), "callback": "quit" },
+    1: { "label": "Start Server", "icon-name": "start", "callback": "start_server" },
+    2: { "label": "Stop Server",  "icon-name":  "stop", "callback": "stop_server" },
+    3: { "label": "Show Logs",    "icon-name":  "logs", "callback": "show_logs" },
+    4: { "label": "Quit",         "icon-name":  "quit", "callback": "quit" },
 }
 MENU_PATH = "/MenuBar"
 
@@ -35,7 +28,8 @@ class Menu(dbus.service.Object):
         self.props = {
             "Version": dbus.UInt32(2),
             "TextDirection": "ltr",
-            "Status": "normal"
+            "Status": "normal",
+            "IconThemePath": dbus.Array([ICON_DIR], signature="s"),
         }
 
     @dbus.service.method(IFACE_DBUS_PROPERTIES, in_signature="s", out_signature="a{sv}")
@@ -89,7 +83,8 @@ class Tray(dbus.service.Object):
             "Id": "casparcg-control",
             "Title": "CasparCG Control",
             "Status": "Active",
-            "IconName": str(DEFAULT_ICON),
+            "IconThemePath": ICON_DIR,
+            "IconName": "default",
             "Menu": dbus.ObjectPath(MENU_PATH),
         }
 
@@ -100,7 +95,7 @@ class Tray(dbus.service.Object):
     def Get(self, interface, name): return self.props[name]
 
     def set_running(self, running):
-        self.props["IconName"] = str(RUNNING_ICON if running else STOPPED_ICON)
+        self.props["IconName"] = "running" if running else "stopped"
         self.NewIcon()
 
         self._menu.set_enabled("start_server", not running)
