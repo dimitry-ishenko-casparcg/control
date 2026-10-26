@@ -2,7 +2,7 @@ import dbus, dbus.service, os, subprocess
 from dbus.mainloop.glib import DBusGMainLoop
 from gi.repository import GLib
 
-__version__ = "0.3"
+__version__ = "0.4"
 
 ITEMS = {
     1: { "label": "Start Server", "icon-name": "start", "callback": "start_server" },
