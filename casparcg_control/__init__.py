@@ -23,8 +23,6 @@ SNI_SERVICE_PREFIX = "org.kde.StatusNotifierItem"
 SNI_WATCHER_SERVICE = "org.kde.StatusNotifierWatcher"
 SNI_WATCHER_PATH = "/StatusNotifierWatcher"
 
-def launch(cmd): subprocess.Popen(cmd)
-
 ####################
 class Menu(dbus.service.Object):
     def __init__(self, conn, object_path, callbacks):

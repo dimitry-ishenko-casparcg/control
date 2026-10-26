@@ -1,13 +1,13 @@
-import os, signal
+import os, signal, subprocess
 from gi.repository import GLib
 from pathlib import Path
-from . import launch, Notifier, Proc, Tray
+from . import Notifier, Proc, Tray
 
 def xdg(name, def_value): return Path(os.environ.get(name) or (Path.home() / def_value))
 casparcg_log = xdg("XDG_STATE_HOME", ".local/state") / "casparcg-server/casparcg.log"
 
 def show_logs():
-    launch(["x-terminal-emulator", "-e", "tail", "-n", "+1", "-f", casparcg_log])
+    subprocess.Popen(["x-terminal-emulator", "-e", "tail", "-n", "+1", "-f", casparcg_log])
 
 def main():
     ctx = GLib.MainContext.default()
