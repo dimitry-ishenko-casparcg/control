@@ -10,7 +10,7 @@ def show_logs():
     subprocess.Popen(["x-terminal-emulator", "-e", "tail", "-n", "+1", "-f", casparcg_log])
 
 def main():
-    ctx = GLib.MainContext.default()
+    context = GLib.MainContext.default()
     loop = GLib.MainLoop()
 
     notifier = Notifier()
@@ -26,6 +26,6 @@ def main():
     loop.run()
 
     server.stop()
-    while server.running(): ctx.iteration(True)
+    while server.running(): context.iteration(True)
 
 if __name__ == "__main__": main()
