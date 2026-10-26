@@ -16,6 +16,8 @@ DEFAULT_ICON = os.path.join(_HERE, "default.png")
 RUNNING_ICON = os.path.join(_HERE, "running.png")
 STOPPED_ICON = os.path.join(_HERE, "stopped.png")
 
+def launch(cmd): subprocess.Popen(cmd)
+
 ####################
 class Menu(dbus.service.Object):
     def __init__(self, conn, object_path, callbacks):
