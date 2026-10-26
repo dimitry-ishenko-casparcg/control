@@ -16,4 +16,5 @@ Architecture: all
 Depends:
  ${misc:Depends},
  ${python3:Depends},
+ casparcg-server (>= 2.5),
 Description: CasparCG Control
