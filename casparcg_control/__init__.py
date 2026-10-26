@@ -1,21 +1,27 @@
-import dbus.service, os, subprocess
+import dbus, dbus.service, os, subprocess
+from dbus.mainloop.glib import DBusGMainLoop
 from gi.repository import GLib
 
 __version__ = "0.3"
 
-ICON_DIR = os.path.dirname(os.path.abspath(__file__))
 ITEMS = {
     1: { "label": "Start Server", "icon-name": "start", "callback": "start_server" },
     2: { "label": "Stop Server",  "icon-name":  "stop", "callback": "stop_server" },
     3: { "label": "Show Logs",    "icon-name":  "logs", "callback": "show_logs" },
     4: { "label": "Quit",         "icon-name":  "quit", "callback": "quit" },
 }
-OBJECT_PATH = "/StatusNotifierItem"
-MENU_PATH = "/MenuBar"
+ICON_DIR = os.path.dirname(os.path.abspath(__file__))
 
 IFACE_DBUS_PROPERTIES = "org.freedesktop.DBus.Properties"
 IFACE_DBUS_MENU = "com.canonical.dbusmenu"
 IFACE_STATUS_NOTIFIER = "org.kde.StatusNotifierItem"
+
+SNI_OBJECT_PATH = "/StatusNotifierItem"
+SNI_MENU_PATH = "/MenuBar"
+
+SNI_SERVICE_PREFIX = "org.kde.StatusNotifierItem"
+SNI_WATCHER_SERVICE = "org.kde.StatusNotifierWatcher"
+SNI_WATCHER_PATH = "/StatusNotifierWatcher"
 
 def launch(cmd): subprocess.Popen(cmd)
 
@@ -76,9 +82,9 @@ class Menu(dbus.service.Object):
 ####################
 class Tray(dbus.service.Object):
     def __init__(self, conn, **callbacks):
-        super().__init__(conn, OBJECT_PATH)
+        super().__init__(conn, SNI_OBJECT_PATH)
 
-        self._menu = Menu(conn, MENU_PATH, callbacks)
+        self._menu = Menu(conn, SNI_MENU_PATH, callbacks)
         self.props = {
             "Category": "ApplicationStatus",
             "Id": "casparcg-control",
@@ -86,7 +92,7 @@ class Tray(dbus.service.Object):
             "Status": "Active",
             "IconThemePath": ICON_DIR,
             "IconName": "default",
-            "Menu": dbus.ObjectPath(MENU_PATH),
+            "Menu": dbus.ObjectPath(SNI_MENU_PATH),
         }
 
     @dbus.service.method(IFACE_DBUS_PROPERTIES, in_signature="s", out_signature="a{sv}")
@@ -138,3 +144,15 @@ class Proc:
         else: self._stop = 0
 
         return True
+
+####################
+class Notifier:
+    def __init__(self):
+        DBusGMainLoop(set_as_default=True)
+        self.bus = dbus.SessionBus()
+
+        name = f"{SNI_SERVICE_PREFIX}-{os.getpid()}-1"
+        self.bus_name = dbus.service.BusName(name, self.bus)
+
+        watcher = self.bus.get_object(SNI_WATCHER_SERVICE, SNI_WATCHER_PATH)
+        watcher.RegisterStatusNotifierItem(name, dbus_interface=SNI_WATCHER_SERVICE)
