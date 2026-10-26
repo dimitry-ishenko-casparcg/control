@@ -2,7 +2,7 @@ import dbus.service, subprocess
 from gi.repository import GLib
 from pathlib import Path
 
-__version__ = "0.1"
+__version__ = "0.3"
 
 _HERE = Path(__file__).resolve().parent
 def _png(name):
